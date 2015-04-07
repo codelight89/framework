@@ -1566,65 +1566,58 @@ class Builder {
 	 */
 	public function count($columns = '*')
 	{
-		if ( ! is_array($columns)) $columns = array($columns);
+		if ( ! is_array($columns))
+		{
+			$columns = array($columns);
+		}
 
-		$count = $this->aggregate(__FUNCTION__, $columns);
-
-		return is_array($count) ? count($count) : (int) $count;
+		return (int) $this->aggregate(__FUNCTION__, $columns);
 	}
 
 	/**
 	 * Retrieve the minimum value of a given column.
 	 *
 	 * @param  string  $column
-	 * @return float|int
+	 * @return mixed
 	 */
 	public function min($column)
 	{
-		$result = $this->aggregate(__FUNCTION__, array($column));
-
-		return is_array($result) ? min($result) : $result;
+		return $this->aggregate(__FUNCTION__, array($column));
 	}
 
 	/**
 	 * Retrieve the maximum value of a given column.
 	 *
 	 * @param  string  $column
-	 * @return float|int
+	 * @return mixed
 	 */
 	public function max($column)
 	{
-		$result = $this->aggregate(__FUNCTION__, array($column));
-
-		return is_array($result) ? max($result) : $result;
+		return $this->aggregate(__FUNCTION__, array($column));
 	}
 
 	/**
 	 * Retrieve the sum of the values of a given column.
 	 *
 	 * @param  string  $column
-	 * @return float|int
+	 * @return mixed
 	 */
 	public function sum($column)
 	{
 		$result = $this->aggregate(__FUNCTION__, array($column));
 
-		return is_array($result) ? array_sum($result) : $result ?: 0;
+		return $result ?: 0;
 	}
 
 	/**
 	 * Retrieve the average of the values of a given column.
 	 *
 	 * @param  string  $column
-	 * @return float|int
+	 * @return mixed
 	 */
 	public function avg($column)
 	{
-		$result = $this->aggregate(__FUNCTION__, array($column));
-
-		if (is_array($result)) return $result ? array_sum($result) / count($result) : 0;
-
-		return $result ?: 0;
+		return $this->aggregate(__FUNCTION__, array($column));
 	}
 
 	/**
@@ -1649,23 +1642,11 @@ class Builder {
 
 		$this->columns = $previousColumns;
 
-		$results = array_map(function($result)
+		if (isset($results[0]))
 		{
-			$result = array_change_key_case((array) $result);
+			$result = array_change_key_case((array) $results[0]);
 
 			return $result['aggregate'];
-		}, (array) $results);
-
-		// If any groupings have been specified, we return the aggregate results as
-		// is such that we give information about all groups. Otherwise we check
-		// if the aggregate had any results and return the value as a scalar.
-		if (isset($this->groups))
-		{
-			return $results;
-		}
-		elseif (isset($results[0]))
-		{
-			return $results[0];
 		}
 	}
 
@@ -1694,8 +1675,7 @@ class Builder {
 		{
 			foreach ($values as $key => $value)
 			{
-				ksort($value);
-				$values[$key] = $value;
+				ksort($value); $values[$key] = $value;
 			}
 		}
 
